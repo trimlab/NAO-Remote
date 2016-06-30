@@ -7,10 +7,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.aldebaran.qi.Session;
-import com.aldebaran.qi.helper.ALProxy;
 import com.aldebaran.qi.helper.proxies.ALAnimatedSpeech;
 import com.aldebaran.qi.helper.proxies.ALMotion;
 import com.aldebaran.qi.helper.proxies.ALRobotPosture;
@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity
     private Button say;
     private Spinner postureSelector;
     private CheckBox autoAnimate;
+    private EditText textToSay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String robotUrl = "141.219.124.110:9559";
+        String robotUrl = "141.219.121.74:9559";
         try
         {
             session = new Session();
@@ -50,8 +51,7 @@ public class MainActivity extends AppCompatActivity
 
 
             autoAnimate = (CheckBox) findViewById(R.id.enableAutoGestures);
-
-            List<String> postures = posture.getPostureList();
+            textToSay = (EditText) findViewById(R.id.textToSay);
 
             say = (Button) findViewById(R.id.say);
             say.setOnClickListener(new View.OnClickListener()
@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity
                 {
                     try
                     {
-                        String text = "Hello! My name is Nao. Nice to meet you!";
-                        if(autoAnimate.isChecked())
+                        String text = textToSay.getText().toString();
+                        if (autoAnimate.isChecked())
                             animatedSpeech.say(text);
                         else
                             tts.say(text);
@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
             });
+
+            List<String> postures = posture.getPostureList();
 
             postureSelector = (Spinner) findViewById(R.id.poseSpinner);
 
