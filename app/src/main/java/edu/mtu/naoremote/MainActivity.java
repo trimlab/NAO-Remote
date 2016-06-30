@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     try
                     {
-                        //posture.applyPosture((String) parent.getAdapter().getItem(position), 1.0f);
+                        posture.goToPosture((String) parent.getAdapter().getItem(position), 0.5f);
                     }
                     catch(Exception e)
                     {
