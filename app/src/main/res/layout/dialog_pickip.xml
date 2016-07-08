@@ -3,14 +3,85 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:paddingLeft="@dimen/abc_dialog_padding_material"
-              android:paddingRight="@dimen/abc_dialog_padding_material"
-              android:paddingBottom="@dimen/abc_dialog_padding_material">
+              android:padding="@dimen/abc_dialog_padding_material">
 
-    <EditText
-        android:id="@+id/ipAddress"
-        android:lines="1"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="IP:"
+            android:labelFor="@+id/ipAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/ipAddress"
+            android:lines="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Username:"
+            android:labelFor="@+id/sshUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/sshUsername"
+            android:lines="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Password:"
+            android:labelFor="@+id/sshPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/sshPassword"
+            android:layout_weight="0.6"
+            android:inputType="textPassword"
+            android:lines="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+
+        <CheckBox
+            android:id="@+id/showPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Save Password?"
+            android:labelFor="@+id/savePassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <CheckBox
+            android:id="@+id/savePassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
 </LinearLayout>
