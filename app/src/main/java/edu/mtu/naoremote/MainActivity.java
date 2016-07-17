@@ -23,6 +23,8 @@ import android.widget.Spinner;
 import com.aldebaran.qi.Session;
 import com.aldebaran.qi.helper.proxies.ALAnimatedSpeech;
 import com.aldebaran.qi.helper.proxies.ALAudioPlayer;
+import com.aldebaran.qi.helper.proxies.ALAutonomousLife;
+import com.aldebaran.qi.helper.proxies.ALAutonomousMoves;
 import com.aldebaran.qi.helper.proxies.ALMotion;
 import com.aldebaran.qi.helper.proxies.ALRobotPosture;
 import com.aldebaran.qi.helper.proxies.ALTextToSpeech;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     private ALRobotPosture posture;
     private ALAnimatedSpeech animatedSpeech;
     private ALAudioPlayer audioPlayer;
+    private ALAutonomousLife autonomousLife;
+    private ALAutonomousMoves autonomousMoves;
     private PackageManager packageManager;
 
     private JSch jSch;
@@ -168,8 +172,12 @@ public class MainActivity extends AppCompatActivity
             animatedSpeech = new ALAnimatedSpeech(session);
             packageManager = new PackageManager(session);
             audioPlayer = new ALAudioPlayer(session);
+            autonomousMoves = new ALAutonomousMoves(session);
 
-            jSch = new JSch();
+            autonomousMoves.setBackgroundStrategy("none");
+
+
+            /*jSch = new JSch();
             sshSession = jSch.getSession("nao", String.valueOf(robotUrl), 22);
             UserInfo info = new UserInfo()
             {
@@ -213,7 +221,7 @@ public class MainActivity extends AppCompatActivity
             sshSession.setUserInfo(info);
             sshSession.connect();
 
-            if(sshSession.isConnected())
+            if(sshSession.isConnected())*/
 
             animatedSpeech.setBodyLanguageModeFromStr("contextual");
 
@@ -243,10 +251,10 @@ public class MainActivity extends AppCompatActivity
 
             postureSelector.setSelection(Collections.binarySearch(postures, posture.getPosture()));
 
-            postureSelector.setOnItemClickListener(new AdapterView.OnItemClickListener()
+            postureSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
             {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
                 {
                     try
                     {
@@ -256,6 +264,12 @@ public class MainActivity extends AppCompatActivity
                     {
                         e.printStackTrace();
                     }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent)
+                {
+
                 }
             });
 
@@ -300,10 +314,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
             });
-
-            List<String> packages = (List<String>) packageManager.getPackages();
-            ArrayAdapter<String> packagesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, packages);
-            packageSelector.setAdapter(packagesAdapter);
         }
         catch(Exception e)
         {
