@@ -81,8 +81,10 @@ public class MainActivity extends AppCompatActivity
         //Get views
         autoAnimate = (CheckBox) findViewById(R.id.enableAutoGestures);
         textToSay = (EditText) findViewById(R.id.textToSay);
-        postureSelector = (Spinner) findViewById(R.id.poseSpinner);
-        packageSelector = (Spinner) findViewById(R.id.packageSpinner);
+
+        /*postureSelector = (Spinner) findViewById(R.id.poseSpinner);
+        packageSelector = (Spinner) findViewById(R.id.packageSpinner);*/
+
         say = (Button) findViewById(R.id.say);
         playSound = (Button) findViewById(R.id.playSample);
         stopSound = (Button) findViewById(R.id.stopSample);
@@ -174,7 +176,7 @@ public class MainActivity extends AppCompatActivity
             audioPlayer = new ALAudioPlayer(session);
             autonomousMoves = new ALAutonomousMoves(session);
 
-            autonomousMoves.setBackgroundStrategy("none");
+            //autonomousMoves.setBackgroundStrategy("none");
 
 
             /*jSch = new JSch();
@@ -245,7 +247,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
 
-            List<String> postures = posture.getPostureList();
+            /*List<String> postures = posture.getPostureList();
             ArrayAdapter<String> postureAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, (String[]) postures.toArray());
             postureSelector.setAdapter(postureAdapter);
 
@@ -271,7 +273,7 @@ public class MainActivity extends AppCompatActivity
                 {
 
                 }
-            });
+            });*/
 
             playSound.setOnClickListener(new View.OnClickListener()
             {

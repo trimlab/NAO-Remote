@@ -11,12 +11,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="edu.mtu.naoremote.MainActivity">
 
-    <Spinner
+    <!-- <Spinner
         android:id="@+id/poseSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    </Spinner>
+    </Spinner> -->
 
     <LinearLayout
         android:orientation="horizontal"
@@ -43,12 +43,12 @@
 
     </LinearLayout>
 
-    <Spinner
+    <!--<Spinner
         android:id="@+id/packageSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    </Spinner>
+    </Spinner> -->
 
     <LinearLayout
         android:orientation="vertical"
