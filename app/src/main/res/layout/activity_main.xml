@@ -19,28 +19,113 @@
     </Spinner> -->
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <CheckBox
-            android:id="@+id/enableAutoGestures"
+        <TextView
+            android:text="Text-To-Speech Mode"
+            android:textSize="@dimen/abc_text_size_medium_material"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-        
-        <EditText
-            android:id="@+id/textToSay"
-            android:layout_weight="0.6"
-            android:layout_width="0dp"
+
+        <RadioGroup
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/noGestures"
+                android:text="None"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <RadioButton
+                android:id="@+id/contextGestures"
+                android:text="Contextual"
+                android:checked="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <RadioButton
+                android:id="@+id/manualGestures"
+                android:text="Manual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </RadioGroup>
+
+        <TextView
+            android:text="Insert"
+            android:textSize="@dimen/abc_text_size_medium_material"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <Button
-            android:id="@+id/say"
-            android:text="Talk!"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"/>
+        <GridLayout
+            android:orientation="horizontal"
+            android:columnCount="3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+            <Button
+                android:id="@+id/addGesture"
+                android:text="Gesture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/changePitch"
+                android:text="Pitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/changeRate"
+                android:text="Rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/changeVolume"
+                android:text="Volume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/addPause"
+                android:text="Pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </GridLayout>
+
+        <TextView
+            android:text="Text-To-Speech"
+            android:textSize="@dimen/abc_text_size_medium_material"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/textToSay"
+                android:layout_weight="0.6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/say"
+                android:text="Talk!"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"/>
+
+        </LinearLayout>
     </LinearLayout>
 
     <!--<Spinner

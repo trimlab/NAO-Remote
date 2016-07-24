@@ -7,19 +7,24 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 
+import com.aldebaran.qi.CallError;
 import com.aldebaran.qi.Session;
 import com.aldebaran.qi.helper.proxies.ALAnimatedSpeech;
 import com.aldebaran.qi.helper.proxies.ALAudioPlayer;
@@ -57,8 +62,9 @@ public class MainActivity extends AppCompatActivity
     private com.jcraft.jsch.Session sshSession;
 
     private Button say, playSound, stopSound;
-    private Spinner postureSelector, packageSelector;
-    private CheckBox autoAnimate;
+    private Button addGesture, changePitch, changeRate, changeVolume, addPause;
+    private Spinner postureSelector;
+    private RadioButton noAnimation, contextAnimation, manualAnimation;
     private EditText textToSay;
 
     private static final int AUDIO_FILE_REQUEST_CODE = 4559;
@@ -70,6 +76,37 @@ public class MainActivity extends AppCompatActivity
 
     private SharedPreferences preferences;
 
+    private View.OnClickListener ttsListener = new View.OnClickListener()
+    {
+        String textToAdd = "";
+
+        @Override
+        public void onClick(View v)
+        {
+            switch(v.getId())
+            {
+                case R.id.changePitch:
+                    textToAdd = "\\\\vct=\\\\";
+                    break;
+                case R.id.changeRate:
+                    textToAdd = "\\\\rspd=\\\\";
+                    break;
+                case R.id.changeVolume:
+                    textToAdd = "\\\\vol=\\\\";
+                    break;
+                case R.id.addPause:
+                    textToAdd = "\\\\pau=\\\\";
+                    break;
+            }
+
+            textToSay.getText().insert(textToSay.getSelectionStart(), textToAdd);
+            textToSay.setSelection(textToSay.getSelectionEnd()-2);
+
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.showSoftInput(textToSay, 0);
+        }
+    };
+
     @Override
     protected void onCreate(final Bundle savedInstanceState)
     {
@@ -79,15 +116,120 @@ public class MainActivity extends AppCompatActivity
         preferences = getPreferences(MODE_PRIVATE);
 
         //Get views
-        autoAnimate = (CheckBox) findViewById(R.id.enableAutoGestures);
-        textToSay = (EditText) findViewById(R.id.textToSay);
-
-        /*postureSelector = (Spinner) findViewById(R.id.poseSpinner);
-        packageSelector = (Spinner) findViewById(R.id.packageSpinner);*/
+        noAnimation = (RadioButton) findViewById(R.id.noGestures);
+        contextAnimation = (RadioButton) findViewById(R.id.contextGestures);
+        manualAnimation = (RadioButton) findViewById(R.id.manualGestures);
 
         say = (Button) findViewById(R.id.say);
         playSound = (Button) findViewById(R.id.playSample);
         stopSound = (Button) findViewById(R.id.stopSample);
+        addGesture = (Button) findViewById(R.id.addGesture);
+        changePitch = (Button) findViewById(R.id.changePitch);
+        changeRate = (Button) findViewById(R.id.changeRate);
+        changeVolume = (Button) findViewById(R.id.changeVolume);
+        addPause = (Button) findViewById(R.id.addPause);
+
+        textToSay = (EditText) findViewById(R.id.textToSay);
+
+        changePitch.setOnClickListener(ttsListener);
+        changeRate.setOnClickListener(ttsListener);
+        changeVolume.setOnClickListener(ttsListener);
+        addPause.setOnClickListener(ttsListener);
+
+        //Custom listener for adding gestures
+        addGesture.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_gesture, null, false);
+
+                Spinner gestures = (Spinner) dialogView.findViewById(R.id.gestureList);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this,
+                        android.R.layout.simple_list_item_1, new String[]{"affirmative","alright","beg",
+                        "beseech","body language","bow","call","clear","enthusiastic","entreat","explain","happy",
+                        "hello","hey","hi","I","implore","indicate","me","my","myself","negative","no","not know",
+                        "ok","oppose","please","present","rapturous","raring","refute","reject","rousing","show",
+                        "supplicate","unacquainted","undetermined","undiscovered","unfamiliar","unknown","warm",
+                        "yeah","yes","yoo-hoo","you","your","zestful"});
+
+                gestures.setAdapter(adapter);
+
+                dialog.setView(dialogView);
+                dialog.setTitle("Add Gesture");
+
+                dialog.setPositiveButton("Insert", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        Spinner gestures = (Spinner) ((Dialog) dialog).findViewById(R.id.gestureList);
+                        textToSay.getText().insert(textToSay.getSelectionEnd(), "^startTag(" + gestures.getSelectedItem() + ")");
+
+                        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(textToSay, 0);
+                    }
+                });
+                dialog.show();
+            }
+        });
+
+        manualAnimation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if(isChecked)
+                {
+                    addGesture.setVisibility(View.VISIBLE);
+
+                    try
+                    {
+                        animatedSpeech.setBodyLanguageModeFromStr("contextual");
+                    }
+                    catch (CallError callError)
+                    {
+                        callError.printStackTrace();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    addGesture.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        noAnimation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                try
+                {
+                    if (isChecked)
+                    {
+                        animatedSpeech.setBodyLanguageModeFromStr("none");
+                    }
+                    else
+                    {
+                        animatedSpeech.setBodyLanguageModeFromStr("contextual");
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        /*postureSelector = (Spinner) findViewById(R.id.poseSpinner);
+        packageSelector = (Spinner) findViewById(R.id.packageSpinner);*/
 
         connectionDialog();
     }
@@ -132,7 +274,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         builder.setView(v);
-        builder.setCancelable(false);
+        //builder.setCancelable(false);
 
         builder.setTitle("Connect to NAO");
 
@@ -235,7 +377,7 @@ public class MainActivity extends AppCompatActivity
                     try
                     {
                         String text = textToSay.getText().toString();
-                        if (autoAnimate.isChecked())
+                        if (!noAnimation.isChecked())
                             animatedSpeech.say(text);
                         else
                             tts.say(text);
