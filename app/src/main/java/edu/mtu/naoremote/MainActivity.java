@@ -26,10 +26,13 @@ import android.widget.Spinner;
 
 import com.aldebaran.qi.CallError;
 import com.aldebaran.qi.Session;
+import com.aldebaran.qi.helper.EventCallback;
 import com.aldebaran.qi.helper.proxies.ALAnimatedSpeech;
 import com.aldebaran.qi.helper.proxies.ALAudioPlayer;
 import com.aldebaran.qi.helper.proxies.ALAutonomousLife;
 import com.aldebaran.qi.helper.proxies.ALAutonomousMoves;
+import com.aldebaran.qi.helper.proxies.ALGazeAnalysis;
+import com.aldebaran.qi.helper.proxies.ALMemory;
 import com.aldebaran.qi.helper.proxies.ALMotion;
 import com.aldebaran.qi.helper.proxies.ALRobotPosture;
 import com.aldebaran.qi.helper.proxies.ALTextToSpeech;
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity
     private ALAudioPlayer audioPlayer;
     private ALAutonomousLife autonomousLife;
     private ALAutonomousMoves autonomousMoves;
+    private ALMemory memory;
     private PackageManager packageManager;
 
     private JSch jSch;
@@ -234,6 +238,13 @@ public class MainActivity extends AppCompatActivity
         connectionDialog();
     }
 
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        session.close();
+    }
+
     private void connectionDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -317,6 +328,17 @@ public class MainActivity extends AppCompatActivity
             packageManager = new PackageManager(session);
             audioPlayer = new ALAudioPlayer(session);
             autonomousMoves = new ALAutonomousMoves(session);
+            memory = new ALMemory(session);
+
+            memory.subscribeToEvent("GazeAnalysis/PersonStartsLookingAtRobot", new EventCallback()
+            {
+                @Override
+                public void onEvent(Object o) throws InterruptedException, CallError
+                {
+                    tts.say("Why are you looking at me like that?");
+                }
+            });
+
 
             //autonomousMoves.setBackgroundStrategy("none");
 
@@ -402,7 +424,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     try
                     {
-                        posture.goToPosture((String) parent.getAdapter().getItem(position), 0.5f);
+                        posture.goToPosture((String) parent.getAdapter().getItem(position), 0.25f);
                     }
                     catch(Exception e)
                     {
