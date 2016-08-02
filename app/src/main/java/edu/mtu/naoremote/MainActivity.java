@@ -4,18 +4,12 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -26,12 +20,10 @@ import android.widget.Spinner;
 
 import com.aldebaran.qi.CallError;
 import com.aldebaran.qi.Session;
-import com.aldebaran.qi.helper.EventCallback;
 import com.aldebaran.qi.helper.proxies.ALAnimatedSpeech;
 import com.aldebaran.qi.helper.proxies.ALAudioPlayer;
 import com.aldebaran.qi.helper.proxies.ALAutonomousLife;
 import com.aldebaran.qi.helper.proxies.ALAutonomousMoves;
-import com.aldebaran.qi.helper.proxies.ALGazeAnalysis;
 import com.aldebaran.qi.helper.proxies.ALMemory;
 import com.aldebaran.qi.helper.proxies.ALMotion;
 import com.aldebaran.qi.helper.proxies.ALRobotPosture;
@@ -40,14 +32,11 @@ import com.aldebaran.qi.helper.proxies.PackageManager;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.UserInfo;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -73,7 +62,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final int AUDIO_FILE_REQUEST_CODE = 4559;
 
-    private String robotUrl = "141.219.121.74:9559";
+    private String robotUrl = "141.219.127.100:9559";
     private String robotSSHUsername = "nao";
     private String robotSSHPassword = "";
     private int soundID = -1;
@@ -242,6 +231,19 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy()
     {
         super.onDestroy();
+        try
+        {
+            autonomousLife.setState("solitary");
+        }
+        catch (CallError callError)
+        {
+            callError.printStackTrace();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+
         session.close();
     }
 
@@ -327,8 +329,11 @@ public class MainActivity extends AppCompatActivity
             animatedSpeech = new ALAnimatedSpeech(session);
             packageManager = new PackageManager(session);
             audioPlayer = new ALAudioPlayer(session);
-            autonomousMoves = new ALAutonomousMoves(session);
-            memory = new ALMemory(session);
+            autonomousLife = new ALAutonomousLife(session);
+
+            autonomousLife.setState("disabled");
+
+            /*memory = new ALMemory(session);
 
             memory.subscribeToEvent("GazeAnalysis/PersonStartsLookingAtRobot", new EventCallback()
             {
@@ -337,7 +342,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     tts.say("Why are you looking at me like that?");
                 }
-            });
+            });*/
 
 
             //autonomousMoves.setBackgroundStrategy("none");
