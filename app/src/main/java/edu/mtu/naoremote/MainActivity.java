@@ -10,12 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.Spinner;
 
 import com.aldebaran.qi.CallError;
@@ -37,6 +37,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity
     private Button say, playSound, stopSound;
     private Button addGesture, changePitch, changeRate, changeVolume, addPause;
     private Spinner postureSelector;
-    private RadioButton noAnimation, contextAnimation, manualAnimation;
+    private CheckBox toggleGestures;
     private EditText textToSay;
 
     private static final int AUDIO_FILE_REQUEST_CODE = 4559;
@@ -109,9 +111,7 @@ public class MainActivity extends AppCompatActivity
         preferences = getPreferences(MODE_PRIVATE);
 
         //Get views
-        noAnimation = (RadioButton) findViewById(R.id.noGestures);
-        contextAnimation = (RadioButton) findViewById(R.id.contextGestures);
-        manualAnimation = (RadioButton) findViewById(R.id.manualGestures);
+        toggleGestures = (CheckBox) findViewById(R.id.toggleGestures);
 
         say = (Button) findViewById(R.id.say);
         playSound = (Button) findViewById(R.id.playSample);
@@ -169,60 +169,37 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        manualAnimation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
-                if(isChecked)
-                {
-                    addGesture.setVisibility(View.VISIBLE);
-
-                    try
-                    {
-                        animatedSpeech.setBodyLanguageModeFromStr("contextual");
-                    }
-                    catch (CallError callError)
-                    {
-                        callError.printStackTrace();
-                    }
-                    catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-                else
-                {
-                    addGesture.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        noAnimation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        toggleGestures.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
                 try
                 {
-                    if (isChecked)
+                    if(isChecked)
                     {
-                        animatedSpeech.setBodyLanguageModeFromStr("none");
+                        addGesture.setVisibility(View.VISIBLE);
+                        animatedSpeech.setBodyLanguageModeFromStr("contextual");
                     }
                     else
                     {
-                        animatedSpeech.setBodyLanguageModeFromStr("contextual");
+                        animatedSpeech.setBodyLanguageModeFromStr("disabled");
+                        addGesture.setVisibility(View.GONE);
                     }
                 }
-                catch (Exception e)
+                catch (CallError callError)
+                {
+                    callError.printStackTrace();
+                }
+                catch (InterruptedException e)
                 {
                     e.printStackTrace();
                 }
             }
         });
 
-        /*postureSelector = (Spinner) findViewById(R.id.poseSpinner);
-        packageSelector = (Spinner) findViewById(R.id.packageSpinner);*/
+        postureSelector = (Spinner) findViewById(R.id.poseSpinner);
+        /*packageSelector = (Spinner) findViewById(R.id.packageSpinner);*/
 
         connectionDialog();
     }
@@ -404,7 +381,8 @@ public class MainActivity extends AppCompatActivity
                     try
                     {
                         String text = textToSay.getText().toString();
-                        if (!noAnimation.isChecked())
+
+                        if (toggleGestures.isChecked())
                             animatedSpeech.say(text);
                         else
                             tts.say(text);
@@ -416,7 +394,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
 
-            /*List<String> postures = posture.getPostureList();
+            List<String> postures = posture.getPostureList();
             ArrayAdapter<String> postureAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, (String[]) postures.toArray());
             postureSelector.setAdapter(postureAdapter);
 
@@ -442,7 +420,7 @@ public class MainActivity extends AppCompatActivity
                 {
 
                 }
-            });*/
+            });
 
             playSound.setOnClickListener(new View.OnClickListener()
             {
