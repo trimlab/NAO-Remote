@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.aldebaran.qi.CallError;
@@ -56,10 +58,11 @@ public class MainActivity extends AppCompatActivity
     private JSch jSch;
     private com.jcraft.jsch.Session sshSession;
 
+    private LinearLayout robotControlContainer;
     private Button say, playSound, stopSound;
     private Button addGesture, changePitch, changeRate, changeVolume, addPause;
     private Spinner postureSelector;
-    private CheckBox toggleGestures;
+    private CheckBox toggleGestures, toggleAutonomousLife;
     private EditText textToSay;
 
     private static final int AUDIO_FILE_REQUEST_CODE = 4559;
@@ -102,6 +105,23 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
+    private static void toggleViews(ViewGroup layout, boolean setting)
+    {
+        layout.setEnabled(setting);
+        for (int i = 0; i < layout.getChildCount(); i++)
+        {
+            View child = layout.getChildAt(i);
+            if (child instanceof ViewGroup)
+            {
+                toggleViews((ViewGroup) child, setting);
+            }
+            else
+            {
+                child.setEnabled(setting);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(final Bundle savedInstanceState)
     {
@@ -112,7 +132,9 @@ public class MainActivity extends AppCompatActivity
 
         //Get views
         toggleGestures = (CheckBox) findViewById(R.id.toggleGestures);
+        toggleAutonomousLife = (CheckBox) findViewById(R.id.toggleAutonomousLife);
 
+        robotControlContainer = (LinearLayout) findViewById(R.id.robotControlContainer);
         say = (Button) findViewById(R.id.say);
         playSound = (Button) findViewById(R.id.playSample);
         stopSound = (Button) findViewById(R.id.stopSample);
@@ -121,7 +143,6 @@ public class MainActivity extends AppCompatActivity
         changeRate = (Button) findViewById(R.id.changeRate);
         changeVolume = (Button) findViewById(R.id.changeVolume);
         addPause = (Button) findViewById(R.id.addPause);
-
         textToSay = (EditText) findViewById(R.id.textToSay);
 
         changePitch.setOnClickListener(ttsListener);
@@ -192,6 +213,31 @@ public class MainActivity extends AppCompatActivity
                     callError.printStackTrace();
                 }
                 catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        toggleAutonomousLife.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                try
+                {
+                    if(isChecked)
+                    {
+                        toggleViews(robotControlContainer, false);
+                        autonomousLife.setState("solitary");
+                    }
+                    else
+                    {
+                        toggleViews(robotControlContainer, true);
+                        autonomousLife.setState("disabled");
+                    }
+                }
+                catch(Exception e)
                 {
                     e.printStackTrace();
                 }
@@ -308,7 +354,8 @@ public class MainActivity extends AppCompatActivity
             audioPlayer = new ALAudioPlayer(session);
             autonomousLife = new ALAutonomousLife(session);
 
-            autonomousLife.setState("disabled");
+            if(autonomousLife.getState().equals("solitary"))
+                toggleAutonomousLife.setChecked(true);
 
             /*memory = new ALMemory(session);
 
