@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -28,6 +29,7 @@ import com.aldebaran.qi.helper.proxies.ALAutonomousLife;
 import com.aldebaran.qi.helper.proxies.ALAutonomousMoves;
 import com.aldebaran.qi.helper.proxies.ALMemory;
 import com.aldebaran.qi.helper.proxies.ALMotion;
+import com.aldebaran.qi.helper.proxies.ALNavigation;
 import com.aldebaran.qi.helper.proxies.ALRobotPosture;
 import com.aldebaran.qi.helper.proxies.ALTextToSpeech;
 import com.aldebaran.qi.helper.proxies.PackageManager;
@@ -42,28 +44,28 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.controlwear.virtual.joystick.android.JoystickView;
+
 public class MainActivity extends AppCompatActivity
 {
     private Session session;
     private ALTextToSpeech tts;
-    private ALMotion motion;
     private ALRobotPosture posture;
     private ALAnimatedSpeech animatedSpeech;
     private ALAudioPlayer audioPlayer;
     private ALAutonomousLife autonomousLife;
-    private ALAutonomousMoves autonomousMoves;
-    private ALMemory memory;
-    private PackageManager packageManager;
+    private ALMotion navigation;
 
     private JSch jSch;
     private com.jcraft.jsch.Session sshSession;
 
     private LinearLayout robotControlContainer;
-    private Button say, playSound, stopSound;
+    private Button say;
     private Button addGesture, changePitch, changeRate, changeVolume, addPause;
     private Spinner postureSelector;
     private CheckBox toggleGestures, toggleAutonomousLife;
     private EditText textToSay;
+    private JoystickView joystick;
 
     private static final int AUDIO_FILE_REQUEST_CODE = 4559;
 
@@ -136,14 +138,13 @@ public class MainActivity extends AppCompatActivity
 
         robotControlContainer = (LinearLayout) findViewById(R.id.robotControlContainer);
         say = (Button) findViewById(R.id.say);
-        playSound = (Button) findViewById(R.id.playSample);
-        stopSound = (Button) findViewById(R.id.stopSample);
         addGesture = (Button) findViewById(R.id.addGesture);
         changePitch = (Button) findViewById(R.id.changePitch);
         changeRate = (Button) findViewById(R.id.changeRate);
         changeVolume = (Button) findViewById(R.id.changeVolume);
         addPause = (Button) findViewById(R.id.addPause);
         textToSay = (EditText) findViewById(R.id.textToSay);
+        joystick = (JoystickView) findViewById(R.id.movementJoystick);
 
         changePitch.setOnClickListener(ttsListener);
         changeRate.setOnClickListener(ttsListener);
@@ -247,6 +248,27 @@ public class MainActivity extends AppCompatActivity
         postureSelector = (Spinner) findViewById(R.id.poseSpinner);
         /*packageSelector = (Spinner) findViewById(R.id.packageSpinner);*/
 
+        joystick.setOnMoveListener(new JoystickView.OnMoveListener()
+        {
+            @Override
+            public void onMove(int angle, int strength)
+            {
+                float x = (float) (strength/100.0 * Math.cos(angle));
+                float y = (float) (strength/100.0 * Math.sin(angle));
+
+                Log.d("Motion", String.format("X: %.2f  Y: %.2f", x, y));
+
+                try
+                {
+                    navigation.move(x, y, 0.0f);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }, 17);
+
         connectionDialog();
     }
 
@@ -256,7 +278,8 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
         try
         {
-            autonomousLife.setState("solitary");
+            if(session.isConnected())
+                autonomousLife.setState("solitary");
         }
         catch (CallError callError)
         {
@@ -347,12 +370,11 @@ public class MainActivity extends AppCompatActivity
             session = new Session();
             session.connect(robotUrl).get();
             tts = new ALTextToSpeech(session);
-            motion = new ALMotion(session);
             posture = new ALRobotPosture(session);
             animatedSpeech = new ALAnimatedSpeech(session);
-            packageManager = new PackageManager(session);
             audioPlayer = new ALAudioPlayer(session);
             autonomousLife = new ALAutonomousLife(session);
+            navigation = new ALMotion(session);
 
             if(autonomousLife.getState().equals("solitary"))
                 toggleAutonomousLife.setChecked(true);
@@ -466,48 +488,6 @@ public class MainActivity extends AppCompatActivity
                 public void onNothingSelected(AdapterView<?> parent)
                 {
 
-                }
-            });
-
-            playSound.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    try
-                    {
-                        /*if(soundID != -1 && audioPlayer.isRunning(soundID))
-                        {
-                            audioPlayer.stop(soundID);
-                        }*/
-
-                        Intent pickFile = new Intent(Intent.ACTION_GET_CONTENT);
-                        pickFile.setType("audio/*");
-                        startActivityForResult(pickFile, AUDIO_FILE_REQUEST_CODE);
-                    }
-                    catch(Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            stopSound.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    try
-                    {
-                        if(soundID != -1 && audioPlayer.isRunning(soundID))
-                        {
-                            audioPlayer.stop(soundID);
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        e.printStackTrace();
-                    }
                 }
             });
         }
