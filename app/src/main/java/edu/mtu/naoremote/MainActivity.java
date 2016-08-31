@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -26,13 +25,9 @@ import com.aldebaran.qi.Session;
 import com.aldebaran.qi.helper.proxies.ALAnimatedSpeech;
 import com.aldebaran.qi.helper.proxies.ALAudioPlayer;
 import com.aldebaran.qi.helper.proxies.ALAutonomousLife;
-import com.aldebaran.qi.helper.proxies.ALAutonomousMoves;
-import com.aldebaran.qi.helper.proxies.ALMemory;
 import com.aldebaran.qi.helper.proxies.ALMotion;
-import com.aldebaran.qi.helper.proxies.ALNavigation;
 import com.aldebaran.qi.helper.proxies.ALRobotPosture;
 import com.aldebaran.qi.helper.proxies.ALTextToSpeech;
-import com.aldebaran.qi.helper.proxies.PackageManager;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -43,8 +38,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-
-import io.github.controlwear.virtual.joystick.android.JoystickView;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -65,11 +58,11 @@ public class MainActivity extends AppCompatActivity
     private Spinner postureSelector;
     private CheckBox toggleGestures, toggleAutonomousLife;
     private EditText textToSay;
-    private JoystickView joystick;
+    //private JoystickView joystick;
 
     private static final int AUDIO_FILE_REQUEST_CODE = 4559;
 
-    private String robotUrl = "141.219.127.100:9559";
+    private String robotUrl = "141.219.123.186:9559";
     private String robotSSHUsername = "nao";
     private String robotSSHPassword = "";
     private int soundID = -1;
@@ -144,7 +137,7 @@ public class MainActivity extends AppCompatActivity
         changeVolume = (Button) findViewById(R.id.changeVolume);
         addPause = (Button) findViewById(R.id.addPause);
         textToSay = (EditText) findViewById(R.id.textToSay);
-        joystick = (JoystickView) findViewById(R.id.movementJoystick);
+        //joystick = (JoystickView) findViewById(R.id.movementJoystick);
 
         changePitch.setOnClickListener(ttsListener);
         changeRate.setOnClickListener(ttsListener);
@@ -248,7 +241,7 @@ public class MainActivity extends AppCompatActivity
         postureSelector = (Spinner) findViewById(R.id.poseSpinner);
         /*packageSelector = (Spinner) findViewById(R.id.packageSpinner);*/
 
-        joystick.setOnMoveListener(new JoystickView.OnMoveListener()
+        /*joystick.setOnMoveListener(new JoystickView.OnMoveListener()
         {
             @Override
             public void onMove(int angle, int strength)
@@ -267,7 +260,7 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
             }
-        }, 17);
+        }, 17);*/
 
         connectionDialog();
     }
@@ -464,8 +457,9 @@ public class MainActivity extends AppCompatActivity
             });
 
             List<String> postures = posture.getPostureList();
-            ArrayAdapter<String> postureAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, (String[]) postures.toArray());
+            ArrayAdapter<String> postureAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, postures);
             postureSelector.setAdapter(postureAdapter);
+            postureAdapter.notifyDataSetChanged();
 
             postureSelector.setSelection(Collections.binarySearch(postures, posture.getPosture()));
 

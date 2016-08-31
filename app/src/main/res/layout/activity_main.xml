@@ -135,13 +135,13 @@
         </LinearLayout>
     </LinearLayout>
 
-    <io.github.controlwear.virtual.joystick.android.JoystickView
+    <!--<io.github.controlwear.virtual.joystick.android.JoystickView
         android:id="@+id/movementJoystick"
         android:layout_height="200dp"
         android:layout_width="200dp"
         app:JV_buttonColor="#FF0000"
         app:JV_borderColor="#0000Ff"
         app:JV_backgroundColor="#11000000"
-        app:JV_borderWidth="4dp" />
+        app:JV_borderWidth="4dp" /> -->
 
 </LinearLayout>

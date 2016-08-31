@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 22
     buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "edu.mtu.naoremote"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -20,8 +20,8 @@ android {
 }
 
 dependencies {
-    compile files('libs/java-naoqi-sdk-2.1.4-android.jar')
-    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile fileTree(dir: 'libs', include: ['*.jar', '*.so'])
     compile 'com.jcraft:jsch:0.1.53'
-    compile 'io.github.controlwear:virtualjoystick:0.9.9'
+    //compile 'io.github.controlwear:virtualjoystick:0.9.9'
+    compile 'com.android.support:appcompat-v7:22.2.1'
 }
